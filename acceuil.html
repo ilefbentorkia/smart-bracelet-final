@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Employee Bracelet - IoT Health Monitoring</title>
+    <link rel="stylesheet" href="css/acceuil.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+     <style>
+    
+        .hero-image img {
+            width: 250px;
+            height: auto;
+            max-width: 100%;
+            border-radius: 20px;
+            filter: drop-shadow(0 10px 25px rgba(0,0,0,0.1));
+            transition: transform 0.3s ease;
+        }
+
+        .hero-image img:hover {
+            transform: scale(1.02);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-heartbeat"></i>
+                <span>SmartBracelet</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="htl.html" class="active">Accueil</a></li>
+                <li><a href="personnel.html">Dashboard</a></li>
+                <li><a href="#features">Fonctionnalités</a></li>
+                <li><a href="#about">À propos</a></li>
+            </ul>
+            <div class="mobile-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Surveillance Santé & Présence</h1>
+                <p>Solution IoT intelligente pour le bien-être des employés et la gestion automatisée des présences</p>
+                <div class="hero-buttons">
+                    <a href="login.html" class="btn btn-primary">
+                        <i class="fas fa-chart-line"></i> Accéder au Dashboard
+                    </a>
+                    <a href="#features" class="btn btn-secondary">
+                        <i class="fas fa-info-circle"></i> En savoir plus
+                    </a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="braceletsm.png" alt="" srcset="Smart Bracelet" width="250" height="250" >
+                
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title">Fonctionnalités</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="feature-icon">🖐️</i>
+                    <h3>Présence Automatisée</h3>
+                    <p>Identification par empreinte digitale pour un pointage précis et sécurisé</p>
+                </div>
+                <div class="feature-card">
+                   <i class="feature-icon">❤️</i>
+                    <h3>Surveillance Cardiaque</h3>
+                    <p>Mesure en temps réel de la fréquence cardiaque et SpO₂</p>
+                </div>
+                <div class="feature-card">
+                    
+                    <i class="feature-icon">🌡️</i>
+                    <h3>Température Corporelle</h3>
+                    <p>Détection précoce de la fièvre et anomalies thermiques</p>
+                </div>
+                <div class="feature-card">
+                    <i class="feature-icon">🔔</i>
+                    <h3>Alertes en Temps Réel</h3>
+                    <p>Notifications instantanées en cas d'anomalies détectées</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats">
+        <div class="container">
+            <div class="stats-grid" id="live-stats">
+                <div class="stat-card">
+                    <i class="fas fa-users"></i>
+                    <div class="stat-number" id="total-employees">0</div>
+                    <div class="stat-label">Employés</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-clock"></i>
+                    <div class="stat-number" id="present-today">0</div>
+                    <div class="stat-label">Présents aujourd'hui</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div class="stat-number" id="active-alerts">0</div>
+                    <div class="stat-label">Alertes actives</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-chart-line"></i>
+                    <div class="stat-number" id="avg-heart-rate">0</div>
+                    <div class="stat-label">BPM Moyen</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Smart Employee Bracelet - Projet IoT</p>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
