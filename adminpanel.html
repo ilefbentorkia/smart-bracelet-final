@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartBracelet - Admin Dashboard</title>
+    <link rel="stylesheet" href="css/adminpanel.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- SIDEBAR (commune à toutes les pages) -->
+        <aside class="sidebar">
+            <div class="brand">SmartBracelet</div>
+            <div class="admin-box">
+                <div class="admin-icon"><i class="ph-fill ph-shield-check"></i></div>
+                <div class="admin-info">
+                    <div class="admin-title" id="adminName">Admin Panel</div>
+                    <div class="admin-subtitle">HEALTH MONITOR</div>
+                </div>
+            </div>
+            <nav class="menu">
+                <a href="adminpanel.html" class="menu-item active" data-page="dashboard"><i class="ph ph-squares-four"></i> Dashboard</a>
+                <a href="employees.html" class="menu-item" data-page="employees"><i class="ph ph-users"></i> Employés</a>
+                <a href="alertes.html" class="menu-item" data-page="alertes"><i class="ph ph-warning"></i> Alertes</a>
+                <a href="rapports.html" class="menu-item" data-page="rapports"><i class="ph ph-file-text"></i> Rapports</a>
+                <a href="quiz.html" class="menu-item" data-page="quiz"><i class="ph ph-question"></i> Quiz</a>
+
+
+            </nav>
+            <div class="sidebar-bottom">
+                <button class="btn-logout" onclick="logout()">
+                    <i class="ph ph-sign-out"></i> Déconnexion
+                </button>
+                <div class="support-link"><i class="ph ph-question"></i> Support</div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="system-status">
+                    <span class="brand-text">SmartBracelet</span>
+                    <span class="status-pill"><span class="dot"></span> LIVE SYSTEM</span>
+                </div>
+                <div class="user-profile">
+                    <i class="ph ph-bell icon"></i>
+                    <i class="ph ph-gear icon"></i>
+                    <div class="profile-details">
+                        <span class="name" id="adminUserName">Admin</span>
+                        <span class="role">Administrateur</span>
+                    </div>
+                    <div class="avatar" id="adminAvatar">A</div>
+                </div>
+            </header>
+
+            <!-- ZONE DE CONTENU DYNAMIQUE (sera chargée par JS ou directement via le fichier) -->
+            <div id="pageContent">
+                <!-- Le contenu de dashboard.html sera ici -->
+                <section class="kpi-grid">
+                    <div class="kpi-card"><span class="label">EMPLOYÉS TOTAUX</span><div class="value" id="totalEmployes">--</div><span class="trend up">Employés actifs</span></div>
+                    <div class="kpi-card"><span class="label">HEURES CE MOIS</span><div class="value" id="totalHeures">--</div><span class="trend blue">Objectif mensuel</span></div>
+                    <div class="kpi-card alert-kpi"><span class="label">ALERTES ACTIVES</span><div class="value" id="totalAlertes">--</div><span class="trend red">Nécessite attention</span></div>
+                    <div class="kpi-card"><span class="label">BPM MOYEN</span><div class="value" id="bpmMoyen">--</div><span class="trend pink">Moyenne équipe</span></div>
+                </section>
+
+                <div class="middle-grid">
+                    <section class="chart-container">
+                        <div class="chart-header"><h3>Moyenne Heures Travaillées (7 derniers jours)</h3></div>
+                        <div class="chart-wrapper"><canvas id="workingHoursChart"></canvas></div>
+                    </section>
+                    <aside class="alerts-sidebar">
+                        <h3>Alertes Santé <span style="font-size:0.8rem;" id="alertesCount"></span></h3>
+                        <div id="alertsListAdmin"><div style="text-align:center; padding:20px;">Chargement...</div></div>
+                        <div class="alerts-footer"><a href="alertes.html" class="btn-see-more">Voir plus <i class="ph ph-arrow-right"></i></a></div>
+                    </aside>
+                </div>
+
+                <div class="bottom-grid">
+                    <div class="employee-card">
+                        <div class="emp-header">EMPLOYÉ DU MOIS</div>
+                        <div class="emp-avatar" id="empMoisAvatar">⭐</div>
+                        <h4 id="empMoisNom">Chargement...</h4>
+                        <p id="empMoisStats">Heures actives</p>
+                    </div>
+                    <div class="rankings-card">
+                        <h3>Top Heures Travaillées</h3>
+                        <div id="topEmployesList"><div style="text-align:center; padding:20px;">Chargement...</div></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/adminpanel.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
