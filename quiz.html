@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - SmartBracelet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            max-width: 700px;
+            width: 100%;
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .quiz-header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .quiz-header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .quiz-header p {
+            opacity: 0.8;
+            font-size: 14px;
+        }
+
+        .quiz-body {
+            padding: 30px;
+        }
+
+        .question {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fc;
+            border-radius: 15px;
+            transition: 0.3s;
+        }
+
+        .question:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1a1a2e;
+            margin-bottom: 15px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            background: white;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 2px solid #e1e5e9;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #f0f2ff;
+        }
+
+        .option input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .option label {
+            flex: 1;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .correct-answer {
+            margin-top: 10px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .correct-badge {
+            background: #dcfce7;
+            color: #16a34a;
+            border-left: 4px solid #16a34a;
+        }
+
+        .wrong-badge {
+            background: #fee2e2;
+            color: #dc2626;
+            border-left: 4px solid #dc2626;
+        }
+
+        .quiz-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .btn-submit, .btn-reset {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-reset {
+            background: #e1e5e9;
+            color: #333;
+        }
+
+        .btn-reset:hover {
+            background: #cbd5e1;
+        }
+
+        .score {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 15px;
+            font-size: 20px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .score-high {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .score-medium {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .score-low {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .quiz-body {
+                padding: 20px;
+            }
+            .question-text {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <h1>📋 Quiz SmartBracelet</h1>
+            <p>Testez vos connaissances sur notre solution IoT</p>
+        </div>
+
+        <div class="quiz-body">
+            <form id="quizForm">
+             
+                <div class="question" data-correct="cardiaque">
+                    <div class="question-text">1. Quelle fonctionnalité le SmartBracelet propose-t-il pour la santé ?</div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q1" value="presence">
+                            <label>Présence automatisée</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q1" value="cardiaque">
+                            <label>Surveillance cardiaque et SpO₂</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q1" value="alertes">
+                            <label>Alertes météo</label>
+                        </div>
+                    </div>
+                    <div class="correct-answer"></div>
+                </div>
+
+              
+                <div class="question" data-correct="empreinte">
+                    <div class="question-text">2. Comment se fait le pointage des employés ?</div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q2" value="qr">
+                            <label>Scan QR code</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q2" value="empreinte">
+                            <label>Identification par empreinte digitale</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q2" value="nfc">
+                            <label>Badge NFC</label>
+                        </div>
+                    </div>
+                    <div class="correct-answer"></div>
+                </div>
+
+               
+                <div class="question" data-correct="fievre">
+                    <div class="question-text">3. Que permet de détecter la mesure de température corporelle ?</div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q3" value="stress">
+                            <label>Le niveau de stress</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q3" value="fievre">
+                            <label>La fièvre et anomalies thermiques</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q3" value="fatigue">
+                            <label>La fatigue musculaire</label>
+                        </div>
+                    </div>
+                    <div class="correct-answer"></div>
+                </div>
+
+               
+                <div class="question" data-correct="temps reel">
+                    <div class="question-text">4. Comment sont envoyées les alertes en cas d'anomalie ?</div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q4" value="email">
+                            <label>Par email à la fin de la journée</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q4" value="rapport">
+                            <label>Rapport hebdomadaire</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q4" value="temps reel">
+                            <label>Notifications en temps réel</label>
+                        </div>
+                    </div>
+                    <div class="correct-answer"></div>
+                </div>
+
+             
+                <div class="question" data-correct="iot">
+                    <div class="question-text">5. SmartBracelet est une solution de quel type ?</div>
+                    <div class="options">
+                        <div class="option">
+                            <input type="radio" name="q5" value="ia">
+                            <label>Intelligence Artificielle</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q5" value="iot">
+                            <label>IoT (Internet of Things)</label>
+                        </div>
+                        <div class="option">
+                            <input type="radio" name="q5" value="vr">
+                            <label>Réalité Virtuelle</label>
+                        </div>
+                    </div>
+                    <div class="correct-answer"></div>
+                </div>
+            </form>
+
+            <div class="quiz-actions">
+                <button class="btn-submit" onclick="checkAnswers()">✅ Corriger</button>
+                <button class="btn-reset" onclick="resetQuiz()">🔄 Recommencer</button>
+            </div>
+
+            <div id="scoreDisplay" class="score"></div>
+            <div class="back-link">
+                <a href="adminpanel.html">← Retour à l'accueil</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const correctAnswers = {
+            q1: "cardiaque",
+            q2: "empreinte",
+            q3: "fievre",
+            q4: "temps reel",
+            q5: "iot"
+        };
+
+        const explanations = {
+            q1: "✅ Bonne réponse ! Le SmartBracelet mesure la fréquence cardiaque et le taux d'oxygène (SpO₂).",
+            q2: "✅ Bonne réponse ! Le pointage se fait par empreinte digitale pour un contrôle sécurisé.",
+            q3: "✅ Bonne réponse ! La détection précoce de la fièvre permet d'agir rapidement.",
+            q4: "✅ Bonne réponse ! Les alertes sont envoyées instantanément en cas d'anomalie détectée.",
+            q5: "✅ Bonne réponse ! SmartBracelet est une solution IoT (Internet of Things)."
+        };
+
+        const wrongExplanations = {
+            q1: "❌ Mauvaise réponse. La bonne réponse est : Surveillance cardiaque et SpO₂.",
+            q2: "❌ Mauvaise réponse. La bonne réponse est : Identification par empreinte digitale.",
+            q3: "❌ Mauvaise réponse. La bonne réponse est : La fièvre et anomalies thermiques.",
+            q4: "❌ Mauvaise réponse. La bonne réponse est : Notifications en temps réel.",
+            q5: "❌ Mauvaise réponse. La bonne réponse est : IoT (Internet of Things)."
+        };
+
+        function checkAnswers() {
+            let score = 0;
+            const totalQuestions = 5;
+
+            for (let i = 1; i <= totalQuestions; i++) {
+                const questionName = `q${i}`;
+                const selectedOption = document.querySelector(`input[name="${questionName}"]:checked`);
+                const correctAnswerDiv = document.querySelector(`.question[data-correct="${correctAnswers[questionName]}"] .correct-answer`);
+                
+                if (selectedOption) {
+                    if (selectedOption.value === correctAnswers[questionName]) {
+                        score++;
+                        correctAnswerDiv.innerHTML = explanations[questionName];
+                        correctAnswerDiv.className = "correct-answer correct-badge";
+                        correctAnswerDiv.style.display = "block";
+                    } else {
+                        correctAnswerDiv.innerHTML = wrongExplanations[questionName];
+                        correctAnswerDiv.className = "correct-answer wrong-badge";
+                        correctAnswerDiv.style.display = "block";
+                    }
+                } else {
+                    correctAnswerDiv.innerHTML = `⚠️ Non répondue. ${wrongExplanations[questionName]}`;
+                    correctAnswerDiv.className = "correct-answer wrong-badge";
+                    correctAnswerDiv.style.display = "block";
+                }
+            }
+
+           
+            const scoreDisplay = document.getElementById("scoreDisplay");
+            const percentage = (score / totalQuestions) * 100;
+            
+            let scoreClass = "";
+            let scoreMessage = "";
+            
+            if (percentage >= 80) {
+                scoreClass = "score-high";
+                scoreMessage = "🏆 Excellent ! Tu maîtrises parfaitement SmartBracelet !";
+            } else if (percentage >= 60) {
+                scoreClass = "score-medium";
+                scoreMessage = "👍 Pas mal ! Relis les fonctionnalités pour être incollable.";
+            } else {
+                scoreClass = "score-low";
+                scoreMessage = "📚 Revois la présentation du projet et réessaie !";
+            }
+            
+            scoreDisplay.innerHTML = `<strong>Score : ${score}/${totalQuestions}</strong><br>${scoreMessage}`;
+            scoreDisplay.className = `score ${scoreClass}`;
+            scoreDisplay.style.display = "block";
+
+        
+            const allRadios = document.querySelectorAll('input[type="radio"]');
+            allRadios.forEach(radio => {
+                radio.disabled = true;
+            });
+        }
+
+        function resetQuiz() {
+           
+            const allRadios = document.querySelectorAll('input[type="radio"]');
+            allRadios.forEach(radio => {
+                radio.checked = false;
+                radio.disabled = false;
+            });
+
+         
+            const allAnswers = document.querySelectorAll('.correct-answer');
+            allAnswers.forEach(answer => {
+                answer.style.display = "none";
+                answer.innerHTML = "";
+            });
+
+            
+            const scoreDisplay = document.getElementById("scoreDisplay");
+            scoreDisplay.style.display = "none";
+        }
+    </script>
+</body>
+</html>
