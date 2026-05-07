@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/signup.css" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>SmartBracelet - Inscription Employé</title>
+    <script src="js/auth.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <div class="brand-section">
+            <div class="logo"><i class="fas fa-user-plus" style="color: #667eea;"></i></div>
+            <h1>Inscription Employé</h1>
+            <p>Créez votre compte SmartBracelet<br>pour commencer le suivi santé.</p>
+            <div class="info-note">
+                <i class="fas fa-shield-alt"></i>
+                <small>Compte réservé aux employés</small>
+            </div>
+        </div>
+
+        <div class="login-section">
+            <h2>Créer mon compte employé</h2>
+            <p class="subtitle">Complétez vos informations pour continuer</p>
+
+            <div id="alert" class="alert"></div>
+
+            <form id="signupForm">
+                <div class="input-group">
+                    <label>Nom complet</label>
+                    <input type="text" id="fullname" placeholder="Ex: Ilef Bentorkia" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Email professionnel</label>
+                    <input type="email" id="email" placeholder="exemple@smartbracelet.com" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Département</label>
+                    <select id="department" required>
+                        <option value="" disabled selected>Choisir votre département</option>
+                        <option value="Informatique">Informatique</option>
+                        <option value="Maintenance">Maintenance</option>
+                        <option value="Ressources Humaines">Ressources Humaines</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Commercial">Commercial</option>
+                        <option value="Direction">Direction</option>
+                        <option value="Autre">Autre</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Mot de passe</label>
+                    <input type="password" id="password" placeholder="••••••••" required>
+                    <small class="hint">Minimum 6 caractères</small>
+                </div>
+
+                <div class="input-group">
+                    <label>Confirmer le mot de passe</label>
+                    <input type="password" id="confirmPassword" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="login-btn">Créer mon compte employé</button>
+
+                <div class="register-link">
+                    Déjà inscrit ? <a href="login.html">Se connecter</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        
+    // Configuration de l'API
+    const API_URL = 'http://localhost:3001/api';
+
+    function showAlert(message, type) {
+        const alertDiv = document.getElementById('alert');
+        alertDiv.textContent = message;
+        alertDiv.className = `alert alert-${type}`;
+        alertDiv.style.display = 'block';
+        setTimeout(() => { alertDiv.style.display = 'none'; }, 3000);
+    }
+
+    document.getElementById('signupForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const fullname = document.getElementById('fullname').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const department = document.getElementById('department').value;
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        // Séparer nom et prénom
+        const nameParts = fullname.split(' ');
+        const nom = nameParts[0] || '';
+        const prenom = nameParts.slice(1).join(' ') || '';
+
+        // 1. Vérification des champs
+        if (!nom || !prenom) {
+            showAlert('Veuillez entrer votre nom et prénom complets', 'error');
+            return;
+        }
+
+        // 2. Vérification du département
+        if (!department) {
+            showAlert('Veuillez sélectionner votre département', 'error');
+            return;
+        }
+
+        // 3. Vérification des mots de passe
+        if (password !== confirmPassword) {
+            showAlert('Les mots de passe ne correspondent pas', 'error');
+            return;
+        }
+
+        // 4. Vérification longueur mot de passe
+        if (password.length < 6) {
+            showAlert('Le mot de passe doit faire au moins 6 caractères', 'error');
+            return;
+        }
+
+        // 5. Envoi au backend (role est fixé à 'employe' automatiquement par le backend)
+        try {
+            const response = await fetch(`${API_URL}/auth/signup`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    nom: nom,
+                    prenom: prenom,
+                    email: email,
+                    mot_de_passe: password,
+                    department: department
+                    // PAS DE role ICI ! Le backend mettra 'employe' automatiquement
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showAlert('✅ Compte employé créé avec succès ! Redirection vers la connexion...', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+            } else {
+                showAlert(data.message || 'Erreur lors de l\'inscription', 'error');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            showAlert('❌ Erreur de connexion au serveur. Vérifiez que le backend est démarré.', 'error');
+        }
+    });
+    </script>
+</body>
+</html>
