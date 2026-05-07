@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartBracelet - Rapports</title>
+    <link rel="stylesheet" href="css/adminpanel.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- SIDEBAR (identique) -->
+        <aside class="sidebar">
+            <div class="brand">SmartBracelet</div>
+            <div class="admin-box">
+                <div class="admin-icon"><i class="ph-fill ph-shield-check"></i></div>
+                <div class="admin-info">
+                    <div class="admin-title" id="adminName">Admin Panel</div>
+                    <div class="admin-subtitle">HEALTH MONITOR</div>
+                </div>
+            </div>
+            <nav class="menu">
+                <a href="adminpanel.html" class="menu-item" data-page="dashboard"><i class="ph ph-squares-four"></i> Dashboard</a>
+                <a href="employees.html" class="menu-item" data-page="employees"><i class="ph ph-users"></i> Employés</a>
+                <a href="alertes.html" class="menu-item" data-page="alertes"><i class="ph ph-warning"></i> Alertes</a>
+                <a href="rapports.html" class="menu-item active" data-page="rapports"><i class="ph ph-file-text"></i> Rapports</a>
+            <a href="quiz.html" class="menu-item" data-page="quiz"><i class="ph ph-question"></i> Quiz</a>
+            </nav>
+            <div class="sidebar-bottom">
+                <button class="btn-logout" onclick="logout()">
+                    <i class="ph ph-sign-out"></i> Déconnexion
+                </button>
+                <div class="support-link"><i class="ph ph-question"></i> Support</div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="system-status">
+                    <span class="brand-text">SmartBracelet</span>
+                    <span class="status-pill"><span class="dot"></span> LIVE SYSTEM</span>
+                </div>
+                <div class="user-profile">
+                    <i class="ph ph-bell icon"></i>
+                    <i class="ph ph-gear icon"></i>
+                    <div class="profile-details">
+                        <span class="name" id="adminUserName">Admin</span>
+                        <span class="role">Administrateur</span>
+                    </div>
+                    <div class="avatar" id="adminAvatar">A</div>
+                </div>
+            </header>
+
+            <!-- CONTENU SPÉCIFIQUE RAPPORTS -->
+            <div id="pageContent">
+                <h2>📊 Rapports et Statistiques</h2>
+                <div class="chart-card"><h3>Évolution des alertes</h3><canvas id="alertsEvolutionChart" style="height: 300px;"></canvas></div>
+                <div class="chart-card"><h3>Top 5 employés</h3><canvas id="topEmployesChart" style="height: 300px;"></canvas></div>
+                <div style="margin-top: 20px; text-align: right;">
+                    <button class="btn-primary" onclick="exportRapport()"><i class="ph ph-download"></i> Exporter (JSON)</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/adminpanel.js"></script>
+    <script src="js/rapports.js"></script>
+</body>
+</html>
