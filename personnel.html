@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartBracelet - Dashboard Employé</title>
+    <link rel="stylesheet" href="css/personnel.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="user-info">
+                <h2 id="userName">Chargement... <span class="badge-active">ACTIF</span></h2>
+                <p id="userInfo"></p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-report" onclick="showWeeklyReport()">
+                    <i class="fas fa-file-alt"></i> Rapport Complet
+                </button>
+                <button class="btn btn-danger" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+                </button>
+            </div>
+        </div>
+        
+        <div class="pointage-card">
+            <div>
+                <h3><i class="fas fa-clock"></i> Pointage du jour</h3>
+                <p id="pointageStatus">Chargement...</p>
+            </div>
+            <button class="btn" id="pointageBtn" onclick="handlePointage()">Check-in</button>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>❤️ Fréquence Cardiaque</h3>
+                <div class="stat-value"><span id="heartRate">--</span> <small>BPM</small></div>
+                <div class="stat-status status-normal" id="heartStatus">✓ Normal</div>
+            </div>
+            <div class="stat-card">
+                <h3>💨 Oxygénation SpO2</h3>
+                <div class="stat-value"><span id="spo2">--</span> <small>%</small></div>
+                <div class="stat-status status-normal" id="spo2Status">✓ Normal</div>
+            </div>
+            <div class="stat-card">
+                <h3>🌡️ Température</h3>
+                <div class="stat-value"><span id="temperature">--</span> <small>°C</small></div>
+                <div class="stat-status status-normal" id="tempStatus">✓ Normal</div>
+            </div>
+        </div>
+        
+        <div class="chart-card">
+            <h3>📈 Évolution des constantes (dernières 24h)</h3>
+            <canvas id="healthChart"></canvas>
+        </div>
+        
+        <div class="bottom-grid">
+            <div class="stat-card">
+                <h3>⏱️ Heures travaillées / Semaine</h3>
+                <canvas id="workChart" style="height: 250px;"></canvas>
+            </div>
+            <div class="alerts-card">
+                <h3>🔔 Alertes récentes</h3>
+                <div id="alertsList">Chargement...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALE RAPPORT COMPLET -->
+    <div id="reportModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-chart-line"></i> Mon Rapport Complet</h2>
+                <button class="close-modal" onclick="closeModal()">&times;</button>
+            </div>
+            
+            <div>
+                <h3 class="section-title">📊 Évolution des constantes (Historique complet)</h3>
+                <canvas id="reportHealthChart" style="height: 300px;"></canvas>
+            </div>
+            
+            <div>
+                <h3 class="section-title">⏱️ Historique des pointages</h3>
+                <div id="pointagesTable">Chargement...</div>
+            </div>
+            
+            <div style="margin-top: 30px; text-align: right; display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-print"></i> Exporter PDF</button>
+                <button class="btn btn-danger" onclick="closeModal()"><i class="fas fa-times"></i> Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3001/api';
+        let healthChart = null;
+        let workChart = null;
+        let reportChart = null;
+        let currentUser = null;
+        let pointagesList = [];
+        
+        let chartData = {
+            labels: [],
+            heartRates: [],
+            temps: [],
+            spo2s: []
+        };
+
+        function getToken() {
+            return localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+        }
+
+        function showToast(message, type) {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        async function fetchAPI(url, options = {}) {
+            try {
+                const res = await fetch(`${API_URL}${url}`, {
+                    ...options,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getToken()}`,
+                        ...options.headers
+                    }
+                });
+                return await res.json();
+            } catch (err) {
+                console.error('API Error:', err);
+                return null;
+            }
+        }
+
+        async function loadUserInfo() {
+            const data = await fetchAPI('/employes/me/profil');
+            if (data?.success) {
+                currentUser = data.employe;
+                document.getElementById('userName').innerHTML = `${currentUser.prenom} ${currentUser.nom} <span class="badge-active">ACTIF</span>`;
+                document.getElementById('userInfo').innerHTML = `${currentUser.department} • ${currentUser.email}`;
+            }
+        }
+
+        async function loadPointages() {
+            const data = await fetchAPI('/pointages/me');
+            if (data?.success && data.pointages) {
+                pointagesList = data.pointages;
+                updatePointageStatus();
+                updateWorkChart();
+            }
+        }
+
+        function updatePointageStatus() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayPointage = pointagesList.find(p => p.date === today);
+            const btn = document.getElementById('pointageBtn');
+            const statusDiv = document.getElementById('pointageStatus');
+            
+            if (!todayPointage) {
+                btn.innerHTML = '📝 Check-in';
+                btn.disabled = false;
+                statusDiv.innerHTML = '❌ Aucun pointage aujourd\'hui';
+            } else if (todayPointage.check_in && !todayPointage.check_out) {
+                btn.innerHTML = '🏁 Check-out';
+                btn.disabled = false;
+                statusDiv.innerHTML = `✅ Check-in à ${todayPointage.check_in.substring(0,5)}`;
+            } else {
+                btn.innerHTML = '✓ Terminé';
+                btn.disabled = true;
+                statusDiv.innerHTML = `✅ Check-in: ${todayPointage.check_in?.substring(0,5)} | Check-out: ${todayPointage.check_out?.substring(0,5)}`;
+            }
+        }
+
+        function updateWorkChart() {
+            if (!workChart) return;
+            
+            const weekData = [0, 0, 0, 0, 0];
+            
+            pointagesList.forEach(p => {
+                if (p.check_in && p.check_out) {
+                    const date = new Date(p.date);
+                    let dayIndex = date.getDay() - 1;
+                    if (dayIndex < 0) dayIndex = 4;
+                    if (dayIndex >= 0 && dayIndex < 5) {
+                        const [inH, inM] = p.check_in.split(':');
+                        const [outH, outM] = p.check_out.split(':');
+                        let hours = parseInt(outH) - parseInt(inH);
+                        let minutes = parseInt(outM) - parseInt(inM);
+                        if (minutes < 0) { hours--; minutes += 60; }
+                        weekData[dayIndex] += hours + (minutes / 60);
+                    }
+                }
+            });
+            
+            workChart.data.datasets[0].data = weekData;
+            workChart.update();
+        }
+
+        async function handlePointage() {
+            const btn = document.getElementById('pointageBtn');
+            const text = btn.innerHTML;
+            const type = text.includes('Check-in') ? 'check_in' : 'check_out';
+            
+            if (text.includes('Terminé')) {
+                showToast('Déjà terminé', 'warning');
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.innerHTML = '⏳...';
+            
+            const data = await fetchAPI('/pointages', {
+                method: 'POST',
+                body: JSON.stringify({ type })
+            });
+            
+            if (data?.success) {
+                showToast(data.message, 'success');
+                await loadPointages();
+            } else {
+                showToast(data?.message || 'Erreur', 'error');
+                btn.disabled = false;
+                btn.innerHTML = text;
+            }
+        }
+
+        async function loadHealthData() {
+            const data = await fetchAPI('/sante/me');
+            console.log('Données santé reçues:', data);
+            
+            if (data?.success && data.donnees?.length) {
+                const last = data.donnees[0];
+                document.getElementById('heartRate').innerHTML = last.heart_rate || last.heartRate || '--';
+                document.getElementById('temperature').innerHTML = last.temperature || '--';
+                document.getElementById('spo2').innerHTML = last.spO2 || '--';
+                
+                chartData = { labels: [], heartRates: [], temps: [], spo2s: [] };
+                const donneesTriees = [...data.donnees].reverse();
+                
+                donneesTriees.forEach(d => {
+                    const date = new Date(d.timestamp || d.recorded_at);
+                    chartData.labels.push(date.toLocaleString());
+                    chartData.heartRates.push(d.heart_rate || d.heartRate);
+                    chartData.temps.push(d.temperature);
+                    chartData.spo2s.push(d.spO2);
+                });
+                
+                updateHealthChart();
+            }
+        }
+
+        async function loadAlerts() {
+            const data = await fetchAPI('/alertes/mes-alertes');
+            const container = document.getElementById('alertsList');
+            if (data?.success && data.alertes?.length) {
+                container.innerHTML = data.alertes.map(a => `
+                    <div class="alert-item ${a.niveau}">
+                        <i class="fas fa-${a.alert_type === 'high_heart_rate' ? 'heartbeat' : 'thermometer-half'}"></i>
+                        <div><strong>${a.alert_message}</strong><br><small>${new Date(a.created_at).toLocaleString()}</small></div>
+                    </div>
+                `).join('');
+            } else {
+                container.innerHTML = '<div class="no-alerts">✅ Aucune alerte</div>';
+            }
+        }
+
+        function initHealthChart() {
+            if (healthChart) { healthChart.destroy(); healthChart = null; }
+            const canvas = document.getElementById('healthChart');
+            if (!canvas) return;
+            
+            healthChart = new Chart(canvas.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [
+                        { label: 'BPM', data: chartData.heartRates, borderColor: '#667eea', backgroundColor: 'rgba(102,126,234,0.1)', tension: 0.3, fill: true, pointRadius: 4 },
+                        { label: 'SpO2 (%)', data: chartData.spo2s, borderColor: '#00b894', tension: 0.3, fill: false, pointRadius: 4, yAxisID: 'y' },
+                        { label: 'Température (°C)', data: chartData.temps, borderColor: '#f59e0b', tension: 0.3, fill: false, pointRadius: 4, yAxisID: 'y1' }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'top' } },
+                    scales: { y: { title: { display: true, text: 'BPM / SpO2 (%)' }, min: 40, max: 120 }, y1: { position: 'right', title: { display: true, text: 'Température (°C)' }, min: 35, max: 40, grid: { drawOnChartArea: false } } }
+                }
+            });
+        }
+
+        function updateHealthChart() {
+            if (!healthChart) { initHealthChart(); }
+            else {
+                healthChart.data.labels = chartData.labels;
+                healthChart.data.datasets[0].data = chartData.heartRates;
+                healthChart.data.datasets[1].data = chartData.spo2s;
+                healthChart.data.datasets[2].data = chartData.temps;
+                healthChart.update();
+            }
+        }
+
+        function initWorkChart() {
+            if (workChart) { workChart.destroy(); workChart = null; }
+            const canvas = document.getElementById('workChart');
+            if (!canvas) return;
+            
+            workChart = new Chart(canvas.getContext('2d'), {
+                type: 'bar',
+                data: { labels: ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi'], datasets: [{ label: 'Heures travaillées', data: [0,0,0,0,0], backgroundColor: '#764ba2', borderRadius: 8 }] },
+                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 10, title: { display: true, text: 'Heures' } } } }
+            });
+        }
+
+        function initReportChart() {
+            if (reportChart) { reportChart.destroy(); reportChart = null; }
+            const canvas = document.getElementById('reportHealthChart');
+            if (!canvas) return;
+            
+            reportChart = new Chart(canvas.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [
+                        { label: 'BPM', data: chartData.heartRates, borderColor: '#667eea', backgroundColor: 'rgba(102,126,234,0.1)', tension: 0.3, fill: true, pointRadius: 3 },
+                        { label: 'SpO2 (%)', data: chartData.spo2s, borderColor: '#00b894', tension: 0.3, fill: false, pointRadius: 3, yAxisID: 'y' },
+                        { label: 'Température (°C)', data: chartData.temps, borderColor: '#f59e0b', tension: 0.3, fill: false, pointRadius: 3, yAxisID: 'y1' }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'top' } },
+                    scales: { y: { title: { display: true, text: 'BPM / SpO2 (%)' }, min: 40, max: 120 }, y1: { position: 'right', title: { display: true, text: 'Température (°C)' }, min: 35, max: 40, grid: { drawOnChartArea: false } } }
+                }
+            });
+        }
+
+        function updatePointagesTable() {
+            const container = document.getElementById('pointagesTable');
+            if (pointagesList.length === 0) {
+                container.innerHTML = '<p style="text-align:center;">Aucun pointage</p>';
+                return;
+            }
+            
+            let html = '<table class="report-table"><thead><tr><th>Date</th><th>Check-in</th><th>Check-out</th><th>Heures</th></tr></thead><tbody>';
+            pointagesList.slice(0, 15).forEach(p => {
+                let heures = '--';
+                if (p.check_in && p.check_out) {
+                    const [inH, inM] = p.check_in.split(':');
+                    const [outH, outM] = p.check_out.split(':');
+                    let h = parseInt(outH) - parseInt(inH);
+                    let m = parseInt(outM) - parseInt(inM);
+                    if (m < 0) { h--; m += 60; }
+                    heures = `${h}h${m > 0 ? m : ''}`;
+                }
+                html += `<tr><td>${p.date}</td><td>${p.check_in?.substring(0,5) || '--'}</td><td>${p.check_out?.substring(0,5) || '--'}</td><td>${heures}</td></tr>`;
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        async function showWeeklyReport() {
+            updatePointagesTable();
+            initReportChart();
+            document.getElementById('reportModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('reportModal').style.display = 'none';
+        }
+
+        function logout() {
+            if (confirm('Déconnexion ?')) {
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.href = 'login.html';
+            }
+        }
+
+        function startAutoRefresh() {
+            setInterval(async () => {
+                await loadHealthData();
+                await loadPointages();
+                await loadAlerts();
+            }, 30000);
+        }
+
+        async function init() {
+            if (!getToken()) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            await loadUserInfo();
+            await loadPointages();
+            await loadHealthData();
+            await loadAlerts();
+            
+            initHealthChart();
+            initWorkChart();
+            updateWorkChart();
+            
+            startAutoRefresh();
+        }
+        
+        init();
+    </script>
+</body>
+</html>
