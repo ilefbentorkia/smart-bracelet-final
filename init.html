@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>SmartBracelet - Solution IoT Santé & Présence</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fc;
+            color: #1a1a2e;
+            overflow-x: hidden;
+        }
+
+    
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .logo span {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        .btn-nav {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white !important;
+            padding: 8px 20px;
+            border-radius: 25px;
+        }
+
+       
+        .login-btn-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .login-btn-header:hover {
+            transform: scale(1.05);
+        }
+
+   
+        .hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 100vh;
+            padding: 100px 50px 50px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9edf5 100%);
+        }
+
+        .hero-content {
+            flex: 1;
+            padding-right: 50px;
+        }
+
+        .hero-content h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .hero-content h1 span {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .hero-content p {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 14px 35px;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            padding: 14px 35px;
+            border: 2px solid #667eea;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+      
+        .hero-image {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .bracelet-image {
+            width: 100%;
+            max-width: 400px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+       
+        
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+      
+        .features {
+            padding: 80px 50px;
+            background: white;
+            text-align: center;
+        }
+
+        .features h2 {
+            font-size: 36px;
+            margin-bottom: 15px;
+        }
+
+        .features-subtitle {
+            color: #666;
+            margin-bottom: 50px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: #f8f9fc;
+            padding: 30px;
+            border-radius: 20px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 30px rgba(0,0,0,0.1);
+        }
+
+        .feature-icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            margin-bottom: 15px;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.5;
+        }
+
+       
+        .stats {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 60px 50px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            text-align: center;
+        }
+
+        .stat-item h3 {
+            font-size: 42px;
+            margin-bottom: 10px;
+        }
+
+        .stat-item p {
+            opacity: 0.9;
+        }
+
+      
+        footer {
+            background: #1a1a2e;
+            color: white;
+            padding: 40px 50px;
+            text-align: center;
+        }
+
+     
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 15px 20px;
+            }
+            .nav-links {
+                display: none;
+            }
+            .hero {
+                flex-direction: column;
+                text-align: center;
+                padding-top: 120px;
+            }
+            .hero-content {
+                padding-right: 0;
+                margin-bottom: 40px;
+            }
+            .hero-buttons {
+                justify-content: center;
+            }
+            .hero-content h1 {
+                font-size: 32px;
+            }
+            .features {
+                padding: 50px 20px;
+            }
+            .stats {
+                flex-direction: column;
+                gap: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+   
+    <nav class="navbar">
+        <div class="logo">
+            <i class="fas fa-heartbeat" style="color: #667eea;"></i>
+             <span>SmartBracelet</span>
+        </div>
+        <div class="nav-links">
+           
+            <a href="#features">Fonctionnalités</a>
+            <a href="#stats">Chiffres</a>
+            <a href="#contact">Contact</a>
+        </div>
+        <button class="login-btn-header" onclick="goToLogin()">Connexion</button>
+    </nav>
+
+   
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Bien-être et productivité avec <span>SmartBracelet</span></h1>
+            <p>Surveillance santé en temps réel, pointage automatique, alertes instantanées.<br>
+            La solution IoT intelligente pour vos employés et votre entreprise.</p>
+            <div class="hero-buttons">
+                <button class="btn-primary" onclick="goToLogin()">🚀 Accéder au Dashboard</button>
+                <button class="btn-secondary" onclick="scrollToFeatures()">📖 En savoir plus</button>
+            </div>
+        </div>
+        <div class="hero-image">
+           
+            <img src="c:\Users\ghada\Downloads\braceletfinal.png" alt="" srcset="Smart Bracelet" width="250" height="250" >
+        </div>
+    </section>
+
+   
+    <section id="features" class="features">
+        <h2>Fonctionnalités innovantes</h2>
+        <p class="features-subtitle">Tout ce dont vous avez besoin pour une gestion optimale</p>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🖐️</div>
+                <h3>Présence Automatisée</h3>
+                <p>Identification par empreinte digitale pour un pointage précis et sécurisé</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">❤️</div>
+                <h3>Surveillance Cardiaque</h3>
+                <p>Mesure en temps réel de la fréquence cardiaque et SpO₂</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🌡️</div>
+                <h3>Température Corporelle</h3>
+                <p>Détection précoce de la fièvre et anomalies thermiques</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔔</div>
+                <h3>Alertes en Temps Réel</h3>
+                <p>Notifications instantanées en cas d'anomalies détectées</p>
+            </div>
+        </div>
+    </section>
+
+  
+    <section id="stats" class="stats">
+        <div class="stat-item">
+            <h3>+500</h3>
+            <p>Entreprises clientes</p>
+        </div>
+        <div class="stat-item">
+            <h3>98%</h3>
+            <p>Satisfaction utilisateur</p>
+        </div>
+        <div class="stat-item">
+            <h3>24/7</h3>
+            <p>Surveillance continue</p>
+        </div>
+        <div class="stat-item">
+            <h3>-40%</h3>
+            <p>Réduction des arrêts maladie</p>
+        </div>
+    </section>
+
+   
+    <footer id="contact">
+        <p>© 2026 SmartBracelet - Solution IoT pour le bien-être des employés</p>
+        <p style="margin-top: 15px; opacity: 0.7;">contact@smartbracelet.com | +126 55 383 812</p>
+    </footer>
+
+    <script>
+     
+        function goToLogin() {
+            window.location.href = 'login.html';
+        }
+
+      
+        function scrollToFeatures() {
+            document.getElementById('features').scrollIntoView({ behavior: 'smooth' });
+        }
+
+ 
+        const braceletSvg = document.querySelector('.bracelet-svg');
+        if (braceletSvg) {
+            braceletSvg.addEventListener('mouseenter', () => {
+                const heart = braceletSvg.querySelector('text');
+                if (heart) {
+                    heart.style.transform = 'scale(1.2)';
+                    heart.style.transition = 'transform 0.3s';
+                }
+            });
+            braceletSvg.addEventListener('mouseleave', () => {
+                const heart = braceletSvg.querySelector('text');
+                if (heart) {
+                    heart.style.transform = 'scale(1)';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
